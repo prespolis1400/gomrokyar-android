@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Airplane (representing air freight) -->
+    <group
+        android:pivotX="12"
+        android:pivotY="12"
+        android:translateX="60"
+        android:translateY="14"
+        android:scaleX="1.2"
+        android:scaleY="1.2"
+        android:rotation="45">
+        <path
+            android:fillColor="#FFFFFF"
+            android:fillAlpha="0.9"
+            android:pathData="M21,16v-2l-8,-5L13,3.5c0,-0.83 -0.67,-1.5 -1.5,-1.5S10,2.67 10,3.5L10,9l-8,5v2l8,-2.5L10,19l-2,1.5L8,22l3.5,-1l3.5,1v-1.5L13,19v-5.5l8,2.5z"/>
+    </group>
+
+    <!-- Cargo Ship Hull -->
+    <path
+        android:fillColor="#1565C0"
+        android:pathData="M 18,62 L 80,62 L 70,74 L 24,74 Z" />
+    <path
+        android:fillColor="#0D47A1"
+        android:pathData="M 18,62 L 80,62 L 75,67 L 21,67 Z" /> <!-- Top Edge Highlight/Shadow -->
+
+    <!-- Ship Cabin -->
+    <path
+        android:fillColor="#F5F5F5"
+        android:pathData="M 22,62 L 22,46 L 34,46 L 34,62 Z" />
+    <path
+        android:fillColor="#E0E0E0"
+        android:pathData="M 28,62 L 28,46 L 34,46 L 34,62 Z" /> <!-- Shade -->
+    
+    <!-- Cabin Windows -->
+    <path
+        android:fillColor="#64B5F6"
+        android:pathData="M 24,50 h3 v4 h-3 z M 29,50 h3 v4 h-3 z" />
+
+    <!-- Smoke stack -->
+    <path
+        android:fillColor="#78909C"
+        android:pathData="M 29,46 v-8 h4 v8 z" />
+    <path
+        android:fillColor="#546E7A"
+        android:pathData="M 31,46 v-8 h2 v8 z" />
+        
+    <!-- Smoke puffs -->
+    <path android:fillColor="#CFD8DC" android:fillAlpha="0.8" android:pathData="M 31,34 a 2,2 0 1,0 0,4 a 2,2 0 1,0 0,-4 z" />
+    <path android:fillColor="#B0BEC5" android:fillAlpha="0.6" android:pathData="M 33,28 a 3,3 0 1,0 0,6 a 3,3 0 1,0 0,-6 z" />
+
+    <!-- Containers -->
+    <!-- Yellow Box -->
+    <path android:fillColor="#FFCA28" android:pathData="M 36,62 v-12 h14 v12 z" />
+    <path android:fillColor="#FFB300" android:pathData="M 43,62 v-12 h7 v12 z" />
+    <!-- Teal Box -->
+    <path android:fillColor="#26A69A" android:pathData="M 52,62 v-12 h14 v12 z" />
+    <path android:fillColor="#00897B" android:pathData="M 59,62 v-12 h7 v12 z" />
+    <!-- Orange Box (Top) -->
+    <path android:fillColor="#FF7043" android:pathData="M 44,50 v-12 h14 v12 z" />
+    <path android:fillColor="#F4511E" android:pathData="M 51,50 v-12 h7 v12 z" />
+    
+    <!-- Water Waves -->
+    <path
+        android:fillColor="#29B6F6"
+        android:fillAlpha="0.8"
+        android:pathData="M 0,68 Q 13.5,60 27,68 T 54,68 T 81,68 T 108,68 L 108,108 L 0,108 Z" />
+    <path
+        android:fillColor="#0288D1"
+        android:fillAlpha="0.9"
+        android:pathData="M 0,74 Q 13.5,66 27,74 T 54,74 T 81,74 T 108,74 L 108,108 L 0,108 Z" />
+
+    <!-- Tax / Calculator Percentage Badge -->
+    <path
+        android:fillColor="#00E5FF"
+        android:pathData="M 78,56 a 12,12 0 1,0 0,24 a 12,12 0 1,0 0,-24 z" />
+    <!-- Inner dark circle -->
+    <path
+        android:fillColor="#0A2B42"
+        android:pathData="M 78,58 a 10,10 0 1,0 0,20 a 10,10 0 1,0 0,-20 z" />
+    <!-- Percentage Symbol -->
+    <path
+        android:fillColor="#00E5FF"
+        android:pathData="M 74,62 a 1.5,1.5 0 1,0 0,3 a 1.5,1.5 0 1,0 0,-3 z M 82,69 a 1.5,1.5 0 1,0 0,3 a 1.5,1.5 0 1,0 0,-3 z M 81,61 L 73,71 L 75,71 L 83,61 Z" />
+
+</vector>

@@ -1,0 +1,4 @@
+sed -i 's/import androidx.compose.material.icons.filled.Search/import androidx.compose.material.icons.filled.Search\nimport androidx.compose.material.icons.filled.LightMode\nimport androidx.compose.material.icons.filled.DarkMode\nimport androidx.compose.material3.IconButton\nimport androidx.compose.material3.Icon/' app/src/main/java/com/example/ui/CalculatorScreen.kt
+
+sed -i 's/TextButton(onClick = { /IconButton(onClick = { /' app/src/main/java/com/example/ui/CalculatorScreen.kt
+sed -i 's/Text("تغییر تم")/Icon(\n                            imageVector = if ((state.isDarkMode ?: sysTheme)) androidx.compose.material.icons.filled.LightMode else androidx.compose.material.icons.filled.DarkMode,\n                            contentDescription = "تغییر تم"\n                        )/' app/src/main/java/com/example/ui/CalculatorScreen.kt

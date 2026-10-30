@@ -1,0 +1,2 @@
+sed -i '/import androidx.compose.material.icons/d' app/src/main/java/com/example/ui/CalculatorScreen.kt
+sed -i '/import androidx.compose.foundation.text.KeyboardOptions/a import androidx.compose.material.icons.Icons\nimport androidx.compose.material.icons.filled.Search\nimport androidx.compose.material.icons.filled.LightMode\nimport androidx.compose.material.icons.filled.DarkMode' app/src/main/java/com/example/ui/CalculatorScreen.kt
