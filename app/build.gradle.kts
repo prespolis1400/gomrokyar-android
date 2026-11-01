@@ -26,35 +26,43 @@ android {
   signingConfigs {
     create("release") {
       val keystorePath = System.getenv("KEYSTORE_PATH") ?: "${rootDir}/my-upload-key.jks"
-      storeFile = file(keystorePath)
-      storePassword = System.getenv("STORE_PASSWORD")
-      keyAlias = "upload"
-      keyPassword = System.getenv("KEY_PASSWORD")
+      val keystoreFile = file(keystorePath)
+      if (keystoreFile.exists()) {
+        storeFile = keystoreFile
+        storePassword = System.getenv("STORE_PASSWORD")
+        keyAlias = "upload"
+        keyPassword = System.getenv("KEY_PASSWORD")
+      }
     }
     create("debugConfig") {
-    val local = file("${rootDir}/debug.keystore")
-    if (local.exists()) {
+      val local = file("${rootDir}/debug.keystore")
+      if (local.exists()) {
         storeFile = local
         storePassword = "android"
         keyAlias = "androiddebugkey"
         keyPassword = "android"
+      }
+      // اگر فایل وجود نداشته باشد، هیچ تنظیمی اعمال نمی‌شود
+      // و AGP از کلید دیباگ تولیدی خودش استفاده می‌کند
     }
-    // اگر فایل وجود نداشته باشد، هیچ تنظیمی اعمال نمی‌شود
-    // و AGP از کلید دیباگ تولیدی خودش استفاده می‌کند
-}
+  }   // ← بستن signingConfigs (این قبلاً کم بود)
 
   buildTypes {
     release {
       isCrunchPngs = false
       isMinifyEnabled = false
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-      signingConfig = signingConfigs.getByName("release")
+      if (signingConfigs.findByName("release")?.storeFile != null) {
+        signingConfig = signingConfigs.getByName("release")
+      }
     }
     debug {
-    if (signingConfigs.findByName("debugConfig")?.storeFile != null) {
+      if (signingConfigs.findByName("debugConfig")?.storeFile != null) {
         signingConfig = signingConfigs.getByName("debugConfig")
+      }
     }
-}
+  }   // ← بستن buildTypes (این قبلاً کم بود)
+
   compileOptions {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
