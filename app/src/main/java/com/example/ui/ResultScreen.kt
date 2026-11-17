@@ -18,6 +18,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -82,13 +83,14 @@ fun ResultScreen(
         بهای تمام‌شده هر کیلوگرم: ${formatNumber(result.costPerKg)} ریال
         جمع کل پرداختی: ${formatNumber(result.totalPayment)} ریال
         ---
-        بیمه حمل: ${formatNumber(result.insurance)} ریال
+        بیمه حمل (۰.۵ در هزار): ${formatNumber(result.insurance)} ریال
         ارزش کل ریالی (سیف): ${formatNumber(result.cifValue)} ریال
         حقوق ورودی: ${formatNumber(result.tariff)} ریال
         ارزش افزوده (۱۰٪): ${formatNumber(result.vat)} ریال
         مالیات ۲٪ علی‌الحساب: ${formatNumber(result.tax4)} ریال
         عوارض استاندارد: ${formatNumber(result.standard)} ریال
         عوارض غذا و دارو: ${formatNumber(result.foodDrug)} ریال
+        باکس ۰۴۷ (جریمه): ${formatNumber(result.box047)} ریال
         تجمیع عوارض باکس ۰۴۲: ${formatNumber(result.box042Total)} ریال$box042Details
         ${if (result.mode == "taavoni") "باکس ۰۴۹ (تخفیف): - ${formatNumber(result.box049)} ریال\n" else ""}
     """.trimIndent()
@@ -351,35 +353,77 @@ fun ResultScreen(
                 ) {
                     Card(
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
-                        shape = RoundedCornerShape(16.dp),
-                        modifier = Modifier.fillMaxWidth()
+                        shape = RoundedCornerShape(20.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
                     ) {
                         Column(
                             modifier = Modifier
-                                .padding(16.dp)
+                                .padding(20.dp)
                                 .fillMaxWidth()
                                 .clickable {
                                     onCopy(result.costPerKg.toString(), "بهای هر کیلوگرم")
                                 },
-                            horizontalAlignment = Alignment.CenterHorizontally
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
-                            Text("بهای تمام‌شده هر کیلوگرم خالص", color = MaterialTheme.colorScheme.onPrimary)
+                            Text(
+                                "بهای تمام‌شده هر کیلوگرم خالص",
+                                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.9f),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
                             Text(
                                 text = "${formatNumber(result.costPerKg)} ریال",
-                                style = MaterialTheme.typography.headlineMedium,
-                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.headlineLarge,
+                                fontWeight = FontWeight.ExtraBold,
                                 color = MaterialTheme.colorScheme.onPrimary
                             )
                         }
                     }
 
-                    DetailRowCopyable("بیمه حمل", result.insurance, onCopy)
-                    DetailRowCopyable("ارزش کل ریالی (سیف)", result.cifValue, onCopy)
+                    DetailRowCopyable("بیمه حمل و نقل (۰.۵ در هزار)", result.insurance, onCopy)
+                    DetailRowCopyable("ارزش کل ریالی (سیف / CIF)", result.cifValue, onCopy)
                     DetailRowCopyable("حقوق ورودی", result.tariff, onCopy)
                     DetailRowCopyable("ارزش افزوده (۱۰٪)", result.vat, onCopy)
                     DetailRowCopyable("مالیات ۲٪ علی‌الحساب", result.tax4, onCopy)
                     DetailRowCopyable("عوارض استاندارد", result.standard, onCopy)
                     DetailRowCopyable("غذا و دارو", result.foodDrug, onCopy)
+
+                    Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (result.box047 > 0) {
+                                MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.7f)
+                            } else {
+                                MaterialTheme.colorScheme.surface
+                            }
+                        ),
+                        shape = RoundedCornerShape(16.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("result_box_047")
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    onCopy(result.box047.toString(), "باکس ۰۴۷ (جریمه)")
+                                }
+                                .padding(12.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                "باکس ۰۴۷ (جریمه)",
+                                fontWeight = FontWeight.Bold,
+                                color = if (result.box047 > 0) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                "${formatNumber(result.box047)} ریال",
+                                fontWeight = FontWeight.Bold,
+                                color = if (result.box047 > 0) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
 
                     Card(
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),

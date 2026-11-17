@@ -32,6 +32,7 @@ data class CalculatorState(
     val manualRate: String = "",
     val tariffPct: String = "5",
     val manualInsurance: String = "",
+    val manualPenalty: String = "",
     val chkStandard: Boolean = true,
     val chkFoodDrug: Boolean = true,
     val applyDiscount: Boolean = false,
@@ -133,6 +134,7 @@ class MainViewModel(
             is CalculatorEvent.OnRateChange -> updateState { copy(manualRate = event.rate) }
             is CalculatorEvent.OnTariffChange -> updateState { copy(tariffPct = event.tariff) }
             is CalculatorEvent.OnManualInsuranceChange -> updateState { copy(manualInsurance = event.insurance) }
+            is CalculatorEvent.OnManualPenaltyChange -> updateState { copy(manualPenalty = event.penalty) }
             is CalculatorEvent.OnStandardTaxToggle -> updateState { copy(chkStandard = !chkStandard) }
             is CalculatorEvent.OnFoodDrugTaxToggle -> updateState { copy(chkFoodDrug = !chkFoodDrug) }
             is CalculatorEvent.OnApplyDiscountToggle -> {
@@ -312,6 +314,7 @@ class MainViewModel(
         val rateVal = s.manualRate.replace(",", "").toDoubleOrNull() ?: 0.0
         val tariffVal = s.tariffPct.replace(",", "").toDoubleOrNull() ?: 0.0
         val manualInsVal = s.manualInsurance.replace(",", "").toLongOrNull() ?: 0L
+        val manualPenaltyVal = s.manualPenalty.replace(",", "").toLongOrNull() ?: 0L
 
         if (weightVal == 0.0 || amountVal == 0.0 || rateVal == 0.0) {
             return // Need these basic values
@@ -327,7 +330,8 @@ class MainViewModel(
             chkStandard = s.chkStandard,
             chkFoodDrug = s.chkFoodDrug,
             activeBox042 = box042Items.filter { it.isChecked },
-            applyDiscount = s.applyDiscount
+            applyDiscount = s.applyDiscount,
+            manualPenalty = manualPenaltyVal
         )
 
         _calculationResult.value = CalculationEngine.calculate(input)
@@ -380,6 +384,7 @@ sealed class CalculatorEvent {
     data class OnRateChange(val rate: String) : CalculatorEvent()
     data class OnTariffChange(val tariff: String) : CalculatorEvent()
     data class OnManualInsuranceChange(val insurance: String) : CalculatorEvent()
+    data class OnManualPenaltyChange(val penalty: String) : CalculatorEvent()
     object OnStandardTaxToggle : CalculatorEvent()
     object OnFoodDrugTaxToggle : CalculatorEvent()
     object OnApplyDiscountToggle : CalculatorEvent()

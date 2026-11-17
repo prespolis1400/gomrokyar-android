@@ -231,22 +231,26 @@ fun CalculatorScreen(
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     OutlinedTextField(
                         value = state.weight,
                         onValueChange = { viewModel.onEvent(CalculatorEvent.OnWeightChange(it)) },
-                        label = { Text("وزن خالص") },
+                        label = { Text("وزن خالص (کیلوگرم)") },
+                        placeholder = { Text("مثلاً ۱۰۰۰") },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(16.dp),
+                        singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                     )
                     OutlinedTextField(
                         value = state.amount,
                         onValueChange = { viewModel.onEvent(CalculatorEvent.OnAmountChange(it)) },
-                        label = { Text("ارزش کل") },
+                        label = { Text("ارزش کل ارزی") },
+                        placeholder = { Text("مثلاً ۵۰۰۰") },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(16.dp),
+                        singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                     )
                 }
@@ -255,7 +259,7 @@ fun CalculatorScreen(
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     CurrencyDropdown(
@@ -268,9 +272,10 @@ fun CalculatorScreen(
                     OutlinedTextField(
                         value = state.manualRate,
                         onValueChange = { viewModel.onEvent(CalculatorEvent.OnRateChange(it)) },
-                        label = { Text("نرخ ارز") },
+                        label = { Text("نرخ برابری (ریال)") },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(16.dp),
+                        singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                     )
                 }
@@ -279,45 +284,92 @@ fun CalculatorScreen(
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     OutlinedTextField(
                         value = state.tariffPct,
                         onValueChange = { viewModel.onEvent(CalculatorEvent.OnTariffChange(it)) },
-                        label = { Text("حقوق ورودی (%)") },
+                        label = { Text("حقوق ورودی (درصد)") },
+                        placeholder = { Text("مثلاً ۴") },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(16.dp),
+                        singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                     )
                     OutlinedTextField(
                         value = state.manualInsurance,
                         onValueChange = { viewModel.onEvent(CalculatorEvent.OnManualInsuranceChange(it)) },
-                        label = { Text("بیمه (اختیاری)") },
+                        label = { Text("بیمه حمل (ریال)") },
+                        placeholder = { Text("خودکار: ۰.۵ در هزار") },
+                        supportingText = { Text("در صورت خالی بودن، نیم در هزار ارزش محاسبه می‌شود", fontSize = 10.sp) },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(16.dp),
+                        singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                     )
                 }
             }
 
             item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                OutlinedTextField(
+                    value = state.manualPenalty,
+                    onValueChange = { viewModel.onEvent(CalculatorEvent.OnManualPenaltyChange(it)) },
+                    label = { Text("جریمه گمرکی - باکس ۰۴۷ (ریال)") },
+                    placeholder = { Text("درج دستی مبلغ جریمه (اختیاری)") },
+                    supportingText = { Text("به حقوق پرداختی اضافه می‌شود (در محاسبه ارزش افزوده لحاظ نمی‌شود)", fontSize = 10.sp) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("manual_penalty_input"),
+                    shape = RoundedCornerShape(16.dp),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                )
+            }
+
+            item {
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                        Checkbox(
-                            checked = state.chkStandard,
-                            onCheckedChange = { viewModel.onEvent(CalculatorEvent.OnStandardTaxToggle) }
-                        )
-                        Text("عوارض استاندارد")
-                    }
-                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                        Checkbox(
-                            checked = state.chkFoodDrug,
-                            onCheckedChange = { viewModel.onEvent(CalculatorEvent.OnFoodDrugTaxToggle) }
-                        )
-                        Text("غذا و دارو")
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 6.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .weight(1f)
+                                .clip(RoundedCornerShape(8.dp))
+                                .clickable { viewModel.onEvent(CalculatorEvent.OnStandardTaxToggle) }
+                                .padding(vertical = 4.dp)
+                        ) {
+                            Checkbox(
+                                checked = state.chkStandard,
+                                onCheckedChange = { viewModel.onEvent(CalculatorEvent.OnStandardTaxToggle) }
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("عوارض استاندارد", style = MaterialTheme.typography.bodyMedium)
+                        }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .weight(1f)
+                                .clip(RoundedCornerShape(8.dp))
+                                .clickable { viewModel.onEvent(CalculatorEvent.OnFoodDrugTaxToggle) }
+                                .padding(vertical = 4.dp)
+                        ) {
+                            Checkbox(
+                                checked = state.chkFoodDrug,
+                                onCheckedChange = { viewModel.onEvent(CalculatorEvent.OnFoodDrugTaxToggle) }
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("عوارض غذا و دارو", style = MaterialTheme.typography.bodyMedium)
+                        }
                     }
                 }
             }
@@ -326,18 +378,39 @@ fun CalculatorScreen(
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f))
+                    shape = RoundedCornerShape(18.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f)),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
                 ) {
                     Column(
-                        modifier = Modifier.padding(12.dp),
+                        modifier = Modifier.padding(14.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text(
-                            text = "تجمیع عوارض باکس ۰۴۲",
-                            fontWeight = FontWeight.Bold,
-                            style = MaterialTheme.typography.titleSmall
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "تجمیع عوارض باکس ۰۴۲",
+                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.titleSmall,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            val selectedCount = box042Items.count { it.isChecked }
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = MaterialTheme.colorScheme.primaryContainer
+                            ) {
+                                Text(
+                                    text = "$selectedCount مورد فعال",
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
                         
                         BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
                             // Calculate font size responsive to the device screen/card width
@@ -390,26 +463,34 @@ fun CalculatorScreen(
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     Button(
                         onClick = { 
                             viewModel.onEvent(CalculatorEvent.OnCalculate("azad")) 
                             onNavigateToResult()
                         },
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(52.dp),
+                        shape = RoundedCornerShape(14.dp),
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
                     ) {
-                        Text("محاسبه آزاد")
+                        Text("محاسبه تجاری آزاد", fontWeight = FontWeight.Bold)
                     }
                     Button(
                         onClick = { 
                             viewModel.onEvent(CalculatorEvent.OnCalculate("taavoni")) 
                             onNavigateToResult()
                         },
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(52.dp),
+                        shape = RoundedCornerShape(14.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
                     ) {
-                        Text("محاسبه تعاونی")
+                        Text("محاسبه تعاونی مرزنشین", fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -571,13 +652,14 @@ fun ResultCard(
                 }
             }
 
-            DetailRow("بیمه حمل", result.insurance)
+            DetailRow("بیمه حمل (۰.۵ در هزار)", result.insurance)
             DetailRow("ارزش کل ریالی (سیف)", result.cifValue)
             DetailRow("حقوق ورودی", result.tariff)
             DetailRow("ارزش افزوده (۱۰٪)", result.vat)
             DetailRow("مالیات ۲٪ علی‌الحساب", result.tax4)
             DetailRow("عوارض استاندارد", result.standard)
             DetailRow("غذا و دارو", result.foodDrug)
+            DetailRow("باکس ۰۴۷ (جریمه)", result.box047)
 
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),

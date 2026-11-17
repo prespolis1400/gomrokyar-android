@@ -3,7 +3,7 @@ package com.example.logic
 import kotlin.math.roundToLong
 
 object Constants {
-    const val INSURANCE_DEFAULT = 0.0005
+    const val INSURANCE_DEFAULT = 0.0005 // نیم در هزار (0.5 per 1000)
     const val STANDARD_TAX = 0.0087
     const val FOOD_DRUG_TAX = 0.002
     const val ALIOLHESAB_TAX = 0.02
@@ -46,7 +46,8 @@ data class CalculationInput(
     val chkStandard: Boolean,
     val chkFoodDrug: Boolean,
     val activeBox042: List<Box042Item>,
-    val applyDiscount: Boolean = false // For Taavoni Box049 discount
+    val applyDiscount: Boolean = false, // For Taavoni Box049 discount
+    val manualPenalty: Long = 0L // جریمه دستی - باکس ۰۴۷
 )
 
 data class Box042Chip(val name: String, val cost: Long)
@@ -71,17 +72,33 @@ data class CalculationResult(
     val basePayment: Long,
     val box049: Long,
     val redCrescentAmount: Long,
-    val applyDiscount: Boolean
+    val applyDiscount: Boolean,
+    val box047: Long = 0L
 )
 
 object CalculationEngine {
     
-    private fun calcBox042(weight: Double, totalValue: Long, tariff: Long, activeItems: List<Box042Item>): Box042Result {
+    private fun calcBox042(
+        weight: Double,
+        totalValue: Long,
+        tariff: Long,
+        activeItems: List<Box042Item>,
+        mode: String,
+        applyDiscount: Boolean
+    ): Box042Result {
         var total = 0L
         val chips = mutableListOf<Box042Chip>()
         
         for (item in activeItems) {
+            val isRedCrescent = item.name.contains("هلال احمر")
+            
+            // در حالت تعاونی هنگام غیرفعال بودن تیک اعمال تخفیف ۵۰ درصد (تخفیف کامل)، کلاً محاسبات هلال احمر حذف می‌شود
+            if (mode == "taavoni" && !applyDiscount && isRedCrescent) {
+                continue
+            }
+
             val cost = when (item.type) {
+                // در حالت فعال بودن تیک تخفیف ۵۰٪، هلال احمر نیز بر مبنای کل حقوق ورودی محاسبه می‌شود
                 "tariff" -> (tariff * item.rate).roundToLong()
                 "value" -> (totalValue * item.rate).roundToLong()
                 "weight" -> (weight * item.rate).roundToLong()
@@ -101,7 +118,7 @@ object CalculationEngine {
         }
         val cifValue = (input.amount * input.rate).roundToLong() + insurance + 1L
         val tariff = (cifValue * (input.tariffPct / 100.0)).roundToLong()
-        val box042 = calcBox042(input.weight, cifValue, tariff, input.activeBox042)
+        val box042 = calcBox042(input.weight, cifValue, tariff, input.activeBox042, input.mode, input.applyDiscount)
         val tax4 = ((cifValue + tariff) * Constants.ALIOLHESAB_TAX).roundToLong()
 
         val standard = if (input.chkStandard) ((cifValue * Constants.STANDARD_TAX) * 1.1).roundToLong() else 0L
@@ -114,12 +131,15 @@ object CalculationEngine {
         if (input.mode == "taavoni") {
             val halfTariff = (tariff / 2.0).roundToLong()
             box049 = if (input.applyDiscount) {
-                halfTariff + redCrescentAmount
+                // وقتی تیک اعمال تخفیف ۵۰٪ فعال است، هلال احمر از کل حقوق ورودی محاسبه شده و در باکس 049 قرار نمی‌گیرد
+                halfTariff
             } else {
-                tariff + redCrescentAmount
+                // وقتی تیک اعمال تخفیف ۵۰٪ غیرفعال است (تخفیف کامل)، هلال احمر کلاً حذف است و باکس 049 برابر با کل حقوق ورودی است
+                tariff
             }
         }
 
+        // مبلغ جریمه در محاسبه مالیات بر ارزش افزوده لحاظ نمی‌شود
         val vat = if (input.mode == "taavoni") {
             if (input.applyDiscount) {
                 // با فعال کردن تیک تخفیف ۵۰ درصد: ارزش گمرکی + نصف حقوق ورودی
@@ -133,6 +153,8 @@ object CalculationEngine {
             ((cifValue + tariff) * Constants.VAT).roundToLong()
         }
 
+        val box047 = input.manualPenalty.coerceAtLeast(0L)
+
         var totalPayment = 0L
         var costPerKg = 0L
         var basePayment = 0L
@@ -140,12 +162,14 @@ object CalculationEngine {
         if (input.mode == "taavoni") {
             basePayment = vat + box042.total + tariff
             
-            totalPayment = basePayment - box049
+            // عدد جریمه به حقوق پرداختی اضافه می‌شود
+            totalPayment = basePayment - box049 + box047
             
             val totalForKg = totalPayment + tax4 + standard + foodDrug
             costPerKg = if (input.weight > 0) (totalForKg / input.weight).roundToLong() else 0L
         } else {
-            totalPayment = tariff + box042.total + vat
+            // عدد جریمه به حقوق پرداختی اضافه می‌شود
+            totalPayment = tariff + box042.total + vat + box047
             val totalForKg = totalPayment + tax4 + standard + foodDrug
             costPerKg = if (input.weight > 0) (totalForKg / input.weight).roundToLong() else 0L
         }
@@ -168,7 +192,8 @@ object CalculationEngine {
             basePayment = basePayment,
             box049 = box049,
             redCrescentAmount = redCrescentAmount,
-            applyDiscount = input.applyDiscount
+            applyDiscount = input.applyDiscount,
+            box047 = box047
         )
     }
 }

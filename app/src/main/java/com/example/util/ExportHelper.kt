@@ -39,7 +39,7 @@ object ExportHelper {
         
         // Standard A4 size: 595 x 842 points
         // If box042 has many chips, extend height so all data fits comfortably on 1 pristine page
-        val extraRows = result.box042Chips.size
+        val extraRows = result.box042Chips.size + 1
         val pageHeight = (842 + (extraRows * 18).coerceAtLeast(0)).coerceAtLeast(842)
         val pageWidth = 595
         
@@ -157,13 +157,14 @@ object ExportHelper {
         data class TableRowData(val title: String, val amount: String, val isSubItem: Boolean = false, val isHighlight: Boolean = false)
         val rows = mutableListOf<TableRowData>()
 
-        rows.add(TableRowData("بیمه حمل و نقل کالا", "${formatNum(result.insurance)} ریال"))
+        rows.add(TableRowData("بیمه حمل و نقل کالا (۰.۵ در هزار)", "${formatNum(result.insurance)} ریال"))
         rows.add(TableRowData("ارزش کل ریالی (سیف / CIF)", "${formatNum(result.cifValue)} ریال"))
         rows.add(TableRowData("حقوق ورودی گمرکی", "${formatNum(result.tariff)} ریال"))
         rows.add(TableRowData("مالیات بر ارزش افزوده (۱۰٪)", "${formatNum(result.vat)} ریال"))
         rows.add(TableRowData("مالیات ۲٪ علی‌الحساب واردات", "${formatNum(result.tax4)} ریال"))
         rows.add(TableRowData("عوارض استاندارد", "${formatNum(result.standard)} ریال"))
         rows.add(TableRowData("عوارض نظارت بر غذا و دارو", "${formatNum(result.foodDrug)} ریال"))
+        rows.add(TableRowData("باکس ۰۴۷ (جریمه گمرکی)", "${formatNum(result.box047)} ریال", isHighlight = result.box047 > 0))
 
         // Box 042 Summary
         rows.add(TableRowData("تجمیع عوارض باکس ۰۴۲ (مجموع)", "${formatNum(result.box042Total)} ریال", isHighlight = true))
@@ -278,7 +279,7 @@ object ExportHelper {
     fun generateResultBitmap(context: Context, result: CalculationResult): Uri {
         val width = 1080
         // Dynamically compute height based on number of box 042 chips
-        val baseHeight = 1750
+        val baseHeight = 1810
         val chipHeight = result.box042Chips.size * 45
         val height = baseHeight + chipHeight
 
@@ -382,13 +383,14 @@ object ExportHelper {
         // Draw items
         data class ItemRow(val title: String, val amount: String, val isSub: Boolean = false, val isHighlight: Boolean = false)
         val items = mutableListOf<ItemRow>()
-        items.add(ItemRow("بیمه حمل", "${formatNum(result.insurance)} ریال"))
+        items.add(ItemRow("بیمه حمل (۰.۵ در هزار)", "${formatNum(result.insurance)} ریال"))
         items.add(ItemRow("ارزش کل ریالی (سیف)", "${formatNum(result.cifValue)} ریال"))
         items.add(ItemRow("حقوق ورودی", "${formatNum(result.tariff)} ریال"))
         items.add(ItemRow("ارزش افزوده (۱۰٪)", "${formatNum(result.vat)} ریال"))
         items.add(ItemRow("مالیات ۲٪ علی‌الحساب", "${formatNum(result.tax4)} ریال"))
         items.add(ItemRow("عوارض استاندارد", "${formatNum(result.standard)} ریال"))
         items.add(ItemRow("غذا و دارو", "${formatNum(result.foodDrug)} ریال"))
+        items.add(ItemRow("باکس ۰۴۷ (جریمه)", "${formatNum(result.box047)} ریال", isHighlight = result.box047 > 0))
         
         items.add(ItemRow("تجمیع عوارض باکس ۰۴۲ (مجموع)", "${formatNum(result.box042Total)} ریال", isHighlight = true))
         for (chip in result.box042Chips) {
